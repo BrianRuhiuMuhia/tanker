@@ -1,0 +1,82 @@
+import Projectile from "./Projectile.js"
+import Enemy from "./Enemy.js"
+import { generateRandomXandYPos } from "./utility.js"
+class ObjectPool{
+    constructor(gameSize,maxPoolSize)
+    {
+        this.pool=[]
+        this.length=0
+        this.maxPoolSize=maxPoolSize
+        this.gameSize=gameSize
+        this.index=0
+        this.isFull=false
+    }
+createProjectiles(position,direction) {
+
+        if (this.pool.length >= this.maxPoolSize) {
+            this.isFull = true; 
+            return this.pool; 
+        }
+        if(!this.isFull){      
+            const options = { color: "red", radius: 10 };
+            const projectile = new Projectile(position, options, this.gameSize);
+            projectile.direction = direction;
+            this.pool.push(projectile);
+            this.length++; 
+        }
+    return this.pool;
+}
+createEnemies(enemySize){
+    const utility={
+        randomFactor:5
+    }
+    let enemyPosition={}
+    let enemyVelocity={}
+    for (let i = 0; i < this.maxPoolSize; i++) {
+            enemyPosition =generateRandomXandYPos(enemySize,this.gameSize)
+        const angle = Math.atan2(
+            this.gameSize.height - enemyPosition.y,
+            this.gameSize.width - enemyPosition.x
+        );
+        enemyVelocity = {
+            x: Math.cos(angle),
+            y: Math.sin(angle) 
+        };
+        this.pool.push(new Enemy(enemyPosition, this.gameSize, enemySize, enemyVelocity));
+        this.length++
+    }
+    this.isFull=true
+    return this.pool
+}
+createEnemyProjectiles(position){
+    for(let i=0;i<2;i++){
+let options={color:"lime",radius:5}
+let projectile=new Projectile(position,options,this.gameSize)
+this.pool.push(projectile)
+this.length++
+    }
+    this.isFull=true
+    return this.pool
+}
+
+ resetObjects(position, direction) {
+    if (this.index < this.length) {
+        this.pool[this.index].position = position;
+        this.pool[this.index].direction = direction;
+        this.pool[this.index].deleted=false
+        this.index++;
+    }
+    else{
+        this.index=0
+    }
+    return this.pool;
+}
+resetPool(){
+    this.pool = [];
+    return this.pool
+}
+    getSize(){
+        return this.length
+    }
+}
+export default ObjectPool
