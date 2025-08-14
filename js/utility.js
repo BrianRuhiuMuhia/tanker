@@ -12,17 +12,12 @@
 //     );
 // };
 
-// // Usage:
-// await preloadImages(['enemy1.png', 'enemy2.png']);
-  function generateRandomXandYPos(dim,gameSize){
-        let x,y
-    if (Math.random() < 0.5) {
-            x = Math.random() < 0.5 ? 0 - dim.width : gameSize.width + dim.width
-            y = Math.random() * gameSize.height
-        } else {
-            x = Math.random() * gameSize.width
-            y = Math.random() < 0.5 ? 0 -gameSize.height : gameSize.height + dim.width
-        }
-        return {x,y}
-    }
-    export {generateRandomXandYPos}
+
+function  getRandomDimensions() {
+    const min = 80;
+    const max = 40;
+    const width = Math.floor(Math.random() * (max - min + 1)) + min;
+    const height = Math.floor(Math.random() * (max - min + 1)) + min;
+    return { width:width, height:height };
+}
+    export {getRandomDimensions}

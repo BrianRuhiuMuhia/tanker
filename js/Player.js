@@ -1,188 +1,156 @@
+
 import Sprite from "./Sprite.js"
-import sprites from "./sprites.js"
 import DrawImage from "./DrawImage.js"
 import Projectile from "./Projectile.js"
 import ObjectPool from "./ObjectPool.js"
-class Player{
-    constructor(gameSize,ctx){
-        this.playerSpriteSrc=new Sprite().getSprite("player")
-        this.position={x:gameSize.width/2,y:gameSize.height/2}
-        this.gameSize=gameSize
-        this.playerImage=null
-        this.playerSprite=null
-        this.playerSize={width:40,height:40}
-        this.direction={right:false,left:false,up:true,down:false}
-        this.origin={x:20,y:20}
-        this.velocity={x:6,y:6}
-        this.speed=4
-        this.projectiles=[]
-        this.currentDirection=null
-        this.ctx=ctx
-        this.objectPool=new ObjectPool(gameSize,5)
-    }
-    draw(ctx){
-        {
-if(this.playerImage===null)
-{
-    this.playerImage=new DrawImage(this.playerSpriteSrc,this.position,this.origin,0,this.playerSize)
-}
-this.playerImage.draw(this.ctx)
-        }{
-            this.projectiles.forEach((projectile)=>{
-projectile.draw(this.ctx)
-projectile.isShot=true
-            })
-        }
+import StatusBar from "./StatusBar.js"
 
+class Player {
+    constructor(gameSize) {
+        this.playerSpriteSrc = new Sprite().getSprite("p1")
+        this.position = { x: 50, y: gameSize.height / 2 }
+        this.gameSize = gameSize
+        this.playerImage = null
+        this.playerSprite = null
+        this.playerSize = { width: 40, height: 40 }
+        this.direction = { right: true, left: false, up: false, down: false }
+        this.verticalDirection = { up: false, down: false }
+        this.origin = { x: 20, y: 20 }
+        this.velocity = { x: 0, y: 0 }
+        this.speed = 2
+        this.projectiles = []
+        this.currentDirection = "right"
+        this.currentVerticalDirection = null
+        this.objectPool = new ObjectPool()
     }
-    updateRotation(event){
+
+    draw(ctx) {
+     
+        let rotation = 0;
         
-if(event.key==="ArrowUp"){
-    this.checkDir("up")
-    this.updatePlayerRotation(this.ctx)
-}
-else if(event.key==="ArrowDown"){
-    this.checkDir("down")
-    this.updatePlayerRotation(this.ctx)
-}
-else if(event.key==="ArrowLeft"){
-    this.checkDir("left")
-    this.updatePlayerRotation(this.ctx)
-}
-else if(event.key==="ArrowRight"){
-    this.checkDir("right")
-    this.updatePlayerRotation(this.ctx)
-}
-else if(event.key==="q")
-{
     
-    // this.createProjectiles()
-    if(!this.objectPool.isFull)
-    {
-           const position={x:this.position.x,y:this.position.y}
-    this.projectiles=this.objectPool.createProjectiles(position,this.currentDirection) 
-    }
-    else if(this.objectPool.isFull){
-        const direction=this.currentDirection
-        const position={x:this.position.x,y:this.position.y}
-        this.projectiles=this.objectPool.resetObjects(position,this.currentDirection)
+        if (this.velocity.x !== 0 || this.velocity.y !== 0) {
+            rotation = Math.atan2(this.velocity.y, this.velocity.x) * (180 / Math.PI);
+        }
         
-    }
+        
+        rotation += 45;
 
-
-}
-
-    }
-    updatePlayerRotation(ctx){
-for(let key in this.direction){
-    if(this.direction[key]===true){
-let degrees=this.getDegrees(key)
-this.updatePlayerRotationByDegrees(degrees,this.ctx)
-    }
-}
-    }
-    getDegrees(key){
-        if(key==="up")
-            return 0;
-        else if(key==="right")
-            return 90;
-        else if(key==="left")
-            return 270;
-        else if(key==="down")
-            return 180;
-
-
-    }
-    updatePlayerRotationByDegrees(degrees,ctx){
-        this.playerImage.rotation=degrees
-this.playerImage.draw(ctx)
-
-    }
-    checkDir(dKey){
-        this.direction[dKey]=true
-        for(let key in this.direction){
-            if(key===dKey){
-                continue
-            }
-            this.direction[key]=false
+        if (this.playerImage === null) {
+            this.playerImage = new DrawImage(this.playerSpriteSrc, this.position, this.origin, rotation, this.playerSize)
+        } else {
+    
+            this.playerImage.rotation = rotation;
         }
 
-    }
-    getPlayerDirection(){
-        let key=null
-for(key in this.direction)
-{
-    if(this.direction[key]===true){
-        break
-
-    }
-}
-return key
-    }
-    playerUpdate()
-    {
-        this.playerMove()
-        this.projectiles.forEach((projectile)=>{
-projectile.update(this.currentDirection)
+        this.playerImage.draw(ctx)
+        
+        this.projectiles.forEach((projectile) => {
+            projectile.draw(ctx)
+            projectile.isShot = true
         })
     }
-    playerMove(){
-        this.currentDirection=this.getPlayerDirection()
-        if(this.position.x>=this.gameSize.width || this.position.x<=0 || this.position.y>=this.gameSize.height || this.position.y<=0){
-this.changeDirection()
-this.updatePlayerRotation(this.ctx)
+
+    updateRotation(event) {
+        if (event.key === "ArrowLeft") {
+            this.checkDir("left")
+        } else if (event.key === "ArrowRight") {
+            this.checkDir("right")
+        } else if (event.key === "ArrowUp") {
+            this.checkVerticalDir("up")
+        } else if (event.key === "ArrowDown") {
+            this.checkVerticalDir("down")
+        } else if (event.key === "q") {
+            if (!this.objectPool.isFull) {
+                const position = { x: this.position.x, y: this.position.y }
+                this.projectiles = this.objectPool.createProjectiles(position, this.currentDirection)
+            } else if (this.objectPool.isFull) {
+                const position = { x: this.position.x, y: this.position.y }
+                this.projectiles = this.objectPool.resetObjects(position, this.currentDirection)
+            }
         }
-        
-             if(this.currentDirection==="up"){
-            this.velocity.y=-this.speed
-            this.velocity.x=0
-        }
-        else if(this.currentDirection==="down"){
-            this.velocity.y=Math.abs(this.speed)
-            this.velocity.x=0
-        }
-        else if(this.currentDirection==="right"){
-            this.velocity.x=Math.abs(this.speed)
-            this.velocity.y=0
-        }
-        else if(this.currentDirection==="left"){
-            this.velocity.x=-this.speed
-        this.velocity.y=0}
-            this.position.x+=this.velocity.x
-            this.position.y+=this.velocity.y
-    
-        }
-        changeDirection(){
-if(this.currentDirection==="right"){
-    this.direction.left=true
-    this.direction.right=false
-    this.currentDirection="left"
-}
-else if(this.currentDirection==="left"){
-    this.direction.left=false
-    this.direction.right=true
-    this.currentDirection="right"
-}
-else if(this.currentDirection==="up"){
-    this.direction.up=false
-    this.direction.down=true
-    this.currentDirection="down"
-}
-else if(this.currentDirection==="down"){
-    this.direction.up=true
-    this.direction.down=false
-    this.currentDirection="up"
-}
-        }
-      
-       
-    createProjectiles(){
-        const position={x:this.position.x,y:this.position.y}
-        const options={color:"red",radius:10}
-const projectile=new Projectile(position,options,this.gameSize)
-this.projectiles.push(projectile)
     }
 
+    checkDir(dKey) {
+        this.direction[dKey] = true
+        for (let key in this.direction) {
+            if (key === dKey) continue
+            this.direction[key] = false
+        }
+    }
+
+    getPlayerDirection() {
+        return this.direction.left ? "left" : "right"
+    }
+
+    getPlayerVerticalDirection() {
+        if (this.verticalDirection.up) return "up"
+        else if (this.verticalDirection.down) return "down"
+        return null
+    }
+
+    checkVerticalDir(dKey) {
+        this.verticalDirection[dKey] = true
+        for (let key in this.verticalDirection) {
+            if (key === dKey) continue
+            this.verticalDirection[key] = false
+        }
+    }
+
+    playerUpdate() {
+        this.playerMove()
+        this.projectiles.forEach((projectile) => {
+            projectile.update(this.currentDirection)
+        })
+    }
+
+    playerMove() {
+        this.currentDirection = this.getPlayerDirection()
+        this.currentVerticalDirection = this.getPlayerVerticalDirection()
+        
+        // Set velocity based on direction (no bounce-back)
+        if (this.currentDirection === "right") {
+            this.velocity.x = this.speed
+        } else if (this.currentDirection === "left") {
+            this.velocity.x = -this.speed
+        } else {
+            this.velocity.x = 0
+        }
+        
+        // Vertical movement (no bounce-back)
+        if (this.currentVerticalDirection === "up") {
+            this.velocity.y = -this.speed
+        } else if (this.currentVerticalDirection === "down") {
+            this.velocity.y = this.speed
+        } else {
+            this.velocity.y = 0
+        }
+        
+        // Update position
+        this.position.x += this.velocity.x
+        this.position.y += this.velocity.y
+        
+        // Canvas wrapping for horizontal movement
+        if (this.position.x > this.gameSize.width) {
+            this.position.x = 0
+        } else if (this.position.x < -this.playerSize.width) {
+            this.position.x = this.gameSize.width
+        }
+        
+        // Canvas wrapping for vertical movement (optional)
+        if (this.position.y > this.gameSize.height) {
+            this.position.y = 0
+        } else if (this.position.y < -this.playerSize.height) {
+            this.position.y = this.gameSize.height
+        }
+    }
+
+    createProjectiles() {
+        const position = { x: this.position.x, y: this.position.y }
+        const options = { color: "red", radius: 10 }
+        const projectile = new Projectile(position, options, this.gameSize)
+        this.projectiles.push(projectile)
+    }
 }
 
 export default Player

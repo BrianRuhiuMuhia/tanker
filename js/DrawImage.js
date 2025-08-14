@@ -3,19 +3,20 @@ class DrawImage {
     #position;
     #origin;
     #size
-    constructor(sprite, position, origin, rotation,size) {
+    constructor(sprite, position, origin, rotation,size,gameSize) {
         this.#sprite = sprite;
         this.#position = position||{x:0,y:0};
         this.#origin = origin || {x:0,y:0};
 this.#size=size
         this.rotation = rotation || 0;
+        this.gameSize=gameSize
     }
 
     draw(ctx) {
         if(!this.#sprite || !this.#size){
             throw new Error("Empty Sprite or Size:Class DrawImage,Method draw(ctx)")
         }
-        setTimeout(()=>{
+        
  ctx.save()
         ctx.translate(this.#position.x, this.#position.y);
         ctx.rotate(this.rotation* (Math.PI / 180));
@@ -27,7 +28,7 @@ this.#size=size
             this.#size.width||this.#sprite.width, this.#size.height||this.#sprite.height
         ); 
         ctx.restore()
-},0)
+
        
         
     }
@@ -75,7 +76,7 @@ this.#size=size
                 if (this.sprite.complete) {
                     resolve();
                 } else {
-                    requestAnimationFrame(check); // GPU-friendly polling
+                    requestAnimationFrame(check); 
                 }
             };
             check();
