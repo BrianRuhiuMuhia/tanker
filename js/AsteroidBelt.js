@@ -1,35 +1,53 @@
-
 import ObjectPool from "./ObjectPool.js";
+import CollisionDetection from "./CollisionDetection.js";
 class AsteroidBelt {
-    constructor(gameSize) {
+    constructor(gameSize,player) {
+        this.player=player
         this.gameSize = gameSize;
         this.objectPool=new ObjectPool(gameSize,10);
         this.asteroids = this.objectPool.createAsteroids();
-      
     } 
+    
     draw(ctx) {
-        console.log(this.asteroids)
-        this.asteroids.forEach(asteroid => asteroid.draw(ctx));
+        this.asteroids.filter((asteroid)=>{
+            return asteroid.deleted===false
+        }).forEach((asteroid)=>{
+            asteroid.draw(ctx)
+        })
     }
 
     update() {
         this.asteroids.forEach(asteroid => asteroid.update());
+        this.checkCollision();
     }
 
-    checkCollision(playerPosition, playerSize) {
-        return this.asteroids.some(asteroid => {
-            const dx = playerPosition.x - asteroid.position.x;
-            const dy = playerPosition.y - asteroid.position.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            return distance < (playerSize.width + asteroid.enemySize.width) / 2;
-        });
+    checkCollision() {
+this.asteroids.forEach((asteroid, asteroidIndex) => {
+    if (asteroid.deleted) return; 
+    const asteroidPlayerCollision = CollisionDetection.checkCollision(asteroid, this.player);
+    if (asteroidPlayerCollision) {
+        this.player.statusBar.update(true)
+        this.player.reduceHealth()
     }
+});
 
-    getAsteroidsInLane(yPosition, laneHeight = 100) {
-        return this.asteroids.filter(asteroid => 
-            Math.abs(asteroid.position.y - yPosition) < laneHeight
-        );
+this.player.projectiles.forEach((projectile, projectileIndex) => {
+    if (projectile.deleted) return;
+    
+    this.asteroids.forEach((asteroid, asteroidIndex) => {
+        if (asteroid.deleted) return; 
+        const asteroidProjectileCollision = CollisionDetection.checkCollision(asteroid, projectile);
+        
+        if(asteroidProjectileCollision){
+            projectile.deleted=true
+            asteroid.statusBar.update(true) ? console.log("hello world"):console.log("projectile hit")
+        asteroid.reduceHealth()
+            
+        }
+    });
+});
     }
 }
 
 export default AsteroidBelt;
+

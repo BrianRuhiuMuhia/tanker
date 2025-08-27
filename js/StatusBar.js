@@ -12,8 +12,18 @@ ctx.fillStyle=this.color
 ctx.fillRect(this.position.x,this.position.y,this.size.width,this.size.height)
 ctx.restore()
     }
-    update(){
-
+    update(collision){
+        if (collision === true) {
+            this.size.width -= 10;
+            if (this.size.width <= 0) {
+                this.size.width = 0;
+                return true; 
+            }
+        }
+        return false; 
+    }
+    changeColor(newColor) {
+        this.color = newColor;
     }
 }
 export default StatusBar

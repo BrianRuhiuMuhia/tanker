@@ -14,7 +14,7 @@ class Game{
         this.background=new Background(this.gameSize)
         this.player=new Player({width,height},this.getCtx())
         this.position={x:0,y:0}
-        this.asteroidBelt=new AsteroidBelt(this.gameSize)
+        this.asteroidBelt=new AsteroidBelt(this.gameSize,this.player)
 new Events(this.player,this.getCtx())
     }
     start(){
@@ -37,6 +37,7 @@ this.background.draw(this.ctx)
         this.background.update(this.player.currentDirection)
         this.player.playerUpdate()    
         this.asteroidBelt.update()
+    
     }
     setGameSize(width,height){
 this.canvas.width=width

@@ -3,13 +3,12 @@ class DrawImage {
     #position;
     #origin;
     #size
-    constructor(sprite, position, origin, rotation,size,gameSize) {
+    constructor(sprite, position, origin, rotation,size) {
         this.#sprite = sprite;
         this.#position = position||{x:0,y:0};
         this.#origin = origin || {x:0,y:0};
 this.#size=size
         this.rotation = rotation || 0;
-        this.gameSize=gameSize
     }
 
     draw(ctx) {

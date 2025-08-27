@@ -1,6 +1,7 @@
 import Projectile from "./Projectile.js"
 import Enemy from "./Enemy.js"
 import { getRandomDimensions } from "./utility.js";
+
 class ObjectPool{
     constructor(gameSize,maxPoolSize)
     {
@@ -18,8 +19,7 @@ createProjectiles(position,direction) {
             return this.pool; 
         }
         if(!this.isFull){      
-            const options = { color: "red", radius: 10 };
-            const projectile = new Projectile(position, options, this.gameSize);
+            const projectile = new Projectile(position,this.gameSize);
             projectile.direction = direction;
             this.pool.push(projectile);
             this.length++; 
@@ -109,4 +109,13 @@ resetPool(){
         return this.length
     }
 }
+
+// Helper function for random position generation
+function generateRandomXandYPos(enemySize, gameSize) {
+    return {
+        x: Math.random() * (gameSize.width - enemySize.width),
+        y: Math.random() * (gameSize.height - enemySize.height)
+    }
+}
+
 export default ObjectPool

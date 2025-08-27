@@ -1,8 +1,8 @@
 import DrawImage from "./DrawImage.js"
+import Explosion from "./Explosion.js"
 import Sprite from "./Sprite.js"
-import ObjectPool from "./ObjectPool.js"
 import StatusBar  from "./StatusBar.js"
-import { getRandomDimensions } from "./utility.js"
+import sprites from "./sprites.js"
 class Enemy{
     constructor(position,gameSize,enemySize,velocity){
         this.position=position
@@ -14,41 +14,62 @@ class Enemy{
         this.deleted=false
         this.direction=null
         this.origin={x:0,y:0}
-        this.objectPool=new ObjectPool(gameSize,5)
-        this.enemyProjectiles=[]
-        this.enemySize=enemySize
+        this.size=enemySize
         this.health=100
         this.statusBar=new StatusBar()
+        this.dangerZone={
+            dead:10,
+            critical:50
+        }
+        this.explosion=new Explosion(sprites["explosion"])
        
     }
    
     draw(ctx){
+        this.ctx=ctx
+        if(this.deleted)
+            return
 if(this.position.x && this.position.y){
-    this.enemyImage=new DrawImage(this.enemySpriteSrc,this.position,this.origin,this.rotation,this.enemySize)
+    this.enemyImage=new DrawImage(this.enemySpriteSrc,this.position,this.origin,this.rotation,this.size)
     this.enemyImage.draw(ctx)
     this.statusBar.draw(ctx,this.position)
 }
 
     }
     update(){
-      
-        
+       if(this.deleted)
+            return
+         this.checkHealth(this.ctx)
         this.position.x+=(this.velocity.x * (Math.random()+1)*this.speed)
         this.position.y+=(this.velocity.y* (Math.random()+1)*this.speed)
-        
-        // Wall bouncing logic
-        if (this.position.x <= 0 || this.position.x >= this.gameSize.width - this.enemySize.width) {
-            this.velocity.x = -this.velocity.x;
-            // Clamp position to prevent going out of bounds
-            this.position.x = Math.max(0, Math.min(this.position.x, this.gameSize.width - this.enemySize.width));
+       if (this.position.x > this.gameSize.width) {
+            this.position.x = 0
+        } else if (this.position.x < -this.size.width) {
+            this.position.x = this.gameSize.width
         }
-        
-        if (this.position.y <= 0 || this.position.y >= this.gameSize.height - this.enemySize.height) {
-            this.velocity.y = -this.velocity.y;
-            // Clamp position to prevent going out of bounds
-            this.position.y = Math.max(0, Math.min(this.position.y, this.gameSize.height - this.enemySize.height));
+        if (this.position.y > this.gameSize.height) {
+            this.position.y = 0
+        } else if (this.position.y < -this.size.height) {
+            this.position.y = this.gameSize.height
         }
+       
 
     }
+    checkHealth(){
+        if(this.health<50){
+            this.statusBar.changeColor("red")
+        }
+        if(this.health<20){
+            this.explosion.draw(this.ctx,this.position)
+            this.deleteEnemy()
+        }
+    }
+    reduceHealth(){
+        this.health=this.health-50
+        return this.health
+    }
+deleteEnemy(){
+    this.deleted=true
+}
 }
 export default Enemy
