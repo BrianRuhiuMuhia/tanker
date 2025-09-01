@@ -4,19 +4,18 @@ import StatusBar from "./StatusBar.js"
 import ObjectPool from "./ObjectPool.js"
 
 class Player {
-    constructor(gameSize) {
-        this.playerSpriteSrc = new Sprite().getSprite("p1")
+    constructor(gameSize,level) {
+        this.playerSpriteSrc = level.player.sprite
         this.position = { x: 50, y: gameSize.height / 2 }
         this.gameSize = gameSize
         this.playerImage = null
-        this.playerSprite = null
-        this.size = { width: 40, height: 40 }
+        this.size = level.player.size
         this.direction = { right: true, left: false, up: false, down: false }
         this.origin = { x: 20, y: 20 }
-        this.velocity = { x: 5, y: 5 }
+        this.velocity = level.player.velocity
         this.speed = 0.1
         this.projectiles = []
-        this.currentDirection = "right"
+        this.currentDirection = level.player.direction
         this.objectPool = new ObjectPool(gameSize, 10)
         this.statusBar = new StatusBar()
         this.alive=true
@@ -35,13 +34,12 @@ if (this.playerImage === null) {
         } else {
             this.playerImage.rotation =0;
             this.playerImage.rotation=this.getRotation()
-            console.log(this.currentDirection)
         }
 
-        this.playerImage.draw(ctx)
+        this.playerImage.drawSprite(ctx)
         this.statusBar.draw(ctx,this.position)
         this.projectiles.forEach((projectile) => {
-            projectile.draw(ctx)
+            projectile.drawImage(ctx)
             projectile.isShot = true
         })
     }
@@ -86,12 +84,12 @@ else if(this.currentDirection==="up")
     }
 
 
-    playerUpdate() {
+    playerUpdate(targetPos) {
          if(!this.alive)
             return
         this.playerMove()
         this.projectiles.forEach((projectile) => {
-            projectile.update(this.currentDirection)
+            projectile.update(this.currentDirection,targetPos)
         })
     }
 
@@ -128,7 +126,7 @@ this.position.x-=this.velocity.x
     createProjectiles() {
         if (!this.objectPool.isFull) {
             const position = { x: this.position.x, y: this.position.y }
-            this.projectiles = this.objectPool.createProjectiles(position, this.currentDirection)
+            this.projectiles = this.objectPool.createProjectiles(position, this.currentDirection,"player")
         } else if (this.objectPool.isFull) {
             const position = { x: this.position.x, y: this.position.y }
             this.projectiles = this.objectPool.resetObjects(position, this.currentDirection)

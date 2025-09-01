@@ -3,22 +3,32 @@ import sprites from "./sprites.js";
 import DrawImage from "./DrawImage.js";
 import Player from "./Player.js"
 import Events from "./Events.js";
-import EnemyClass from "./EnemyClass.js";
+import Levels from "./Levels.js";
 import Background from "./Background.js";
-import AsteroidBelt from "./AsteroidBelt.js";
+import Enemy from "./Enemy.js";
 class Game{
     constructor(canvas,width,height){
         this.canvas = canvas;
         this.ctx = this.setCtx();
         this.gameSize=this.setGameSize(width,height)
-        this.background=new Background(this.gameSize)
-        this.player=new Player({width,height},this.getCtx())
+        this.currentLevel=this.getCurrentLevel()
+        this.background=new Background(this.gameSize,this.currentLevel)
+        this.player=new Player({width,height},this.currentLevel)
         this.position={x:0,y:0}
-        this.asteroidBelt=new AsteroidBelt(this.gameSize,this.player)
+        this.enemy=new Enemy(this.gameSize,this.currentLevel,this.player)
+        this.gameStates={"start":false,"playing":false,"paused":false,"over":false}
+        this.gameLevels=["one","two","final",]
 new Events(this.player,this.getCtx())
     }
     start(){
     
+    }
+    getCurrentLevel(){
+    Levels.forEach((level)=>{
+
+    })
+    this.currentLevel=Levels[1]["two"]
+    return this.currentLevel
     }
      draw(){
         
@@ -28,7 +38,7 @@ this.background.draw(this.ctx)
 }{
     this.player.draw(this.ctx,this.gameSize)
 }{
-    this.asteroidBelt.draw(this.ctx)
+    this.enemy.draw(this.ctx)
 
 }
 
@@ -36,7 +46,7 @@ this.background.draw(this.ctx)
     update(){
         this.background.update(this.player.currentDirection)
         this.player.playerUpdate()    
-        this.asteroidBelt.update()
+        this.enemy.update()
     
     }
     setGameSize(width,height){

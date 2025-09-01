@@ -11,7 +11,7 @@ this.#size=size
         this.rotation = rotation || 0;
     }
 
-    draw(ctx) {
+    drawSprite(ctx) {
         if(!this.#sprite || !this.#size){
             throw new Error("Empty Sprite or Size:Class DrawImage,Method draw(ctx)")
         }
@@ -30,6 +30,16 @@ this.#size=size
 
        
         
+    }
+   static drawImage(ctx,position,size,options){
+    ctx.save()
+      ctx.beginPath();
+        ctx.fillStyle = "red";
+        
+        ctx.fillRect(position.x, position.y, size.width, size.height);
+        ctx.fill();
+        ctx.closePath();
+        ctx.restore()
     }
 }
 /*class DrawImage {

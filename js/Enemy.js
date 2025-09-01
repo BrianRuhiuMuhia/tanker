@@ -1,75 +1,67 @@
-import DrawImage from "./DrawImage.js"
-import Explosion from "./Explosion.js"
-import Sprite from "./Sprite.js"
-import StatusBar  from "./StatusBar.js"
-import sprites from "./sprites.js"
-class Enemy{
-    constructor(position,gameSize,enemySize,velocity){
-        this.position=position
-        this.gameSize=gameSize
-        this.velocity = velocity
-        this.speed=1
-        this.enemyImage=null
-        this.enemySpriteSrc=new Sprite().getSprite("astr1")
-        this.deleted=false
-        this.direction=null
-        this.origin={x:0,y:0}
-        this.size=enemySize
-        this.health=100
-        this.statusBar=new StatusBar()
-        this.dangerZone={
-            dead:10,
-            critical:50
-        }
-        this.explosion=new Explosion(sprites["explosion"])
-       
-    }
-   
-    draw(ctx){
-        this.ctx=ctx
-        if(this.deleted)
-            return
-if(this.position.x && this.position.y){
-    this.enemyImage=new DrawImage(this.enemySpriteSrc,this.position,this.origin,this.rotation,this.size)
-    this.enemyImage.draw(ctx)
-    this.statusBar.draw(ctx,this.position)
-}
+import ObjectPool from "./ObjectPool.js";
+import CollisionDetection from "./CollisionDetection.js";
+class Enemy {
+    constructor(gameSize,level, player) {
+        this.level=level
+        this.player = player;
+        this.gameSize = gameSize;
+        this.objectPool = new ObjectPool(gameSize, 10,this.level);
+        this.enemies = this.getEnemy()
 
-    }
-    update(){
-       if(this.deleted)
-            return
-         this.checkHealth(this.ctx)
-        this.position.x+=(this.velocity.x * (Math.random()+1)*this.speed)
-        this.position.y+=(this.velocity.y* (Math.random()+1)*this.speed)
-       if (this.position.x > this.gameSize.width) {
-            this.position.x = 0
-        } else if (this.position.x < -this.size.width) {
-            this.position.x = this.gameSize.width
-        }
-        if (this.position.y > this.gameSize.height) {
-            this.position.y = 0
-        } else if (this.position.y < -this.size.height) {
-            this.position.y = this.gameSize.height
-        }
-       
+    } 
 
+    draw(ctx) {
+        this.enemies.filter((enemy) => {
+            return enemy.enemyAsteroid.deleted === false;
+        }).forEach((enemy) => {
+            enemy.enemyAsteroid.draw(ctx);
+        });
     }
-    checkHealth(){
-        if(this.health<50){
-            this.statusBar.changeColor("red")
-        }
-        if(this.health<20){
-            this.explosion.draw(this.ctx,this.position)
-            this.deleteEnemy()
-        }
+getEnemy(){
+    let enemy=[]
+    let currentLevel=this.level["level"]
+    
+    if(currentLevel==="one"){
+        enemy=this.objectPool.createAsteroids()
     }
-    reduceHealth(){
-        this.health=this.health-50
-        return this.health
+    else if(currentLevel==="two"){
+        enemy=this.objectPool.createAliens()
     }
-deleteEnemy(){
-    this.deleted=true
+    return enemy
 }
-}
-export default Enemy
+    update() {
+        this.enemies.forEach(enemy => {
+            enemy.update(this.player)});
+        this.checkCollision();
+    }
+
+    checkCollision() {
+        this.enemies.forEach((enemy) => {
+            if (enemy.enemyAsteroid.deleted) return; 
+            const enemyPlayerCollision = CollisionDetection.checkCollision(enemy, this.player);
+            if (enemyPlayerCollision) {
+                this.player.statusBar.update(true);
+                this.player.reduceHealth();
+            }
+        });
+
+        this.player.projectiles.forEach((projectile) => {
+            if (projectile.deleted) return;
+            
+            this.enemies.forEach((enemy) => {
+                if (enemy.enemyAsteroid.deleted) return; 
+                const enemyProjectileCollision = CollisionDetection.checkCollision(enemy, projectile);
+                
+                if (enemyProjectileCollision) {
+                    projectile.deleted = true;
+                    enemy.enemyAsteroid.statusBar.update(true) ? console.log("hello world") : console.log("projectile hit");
+                    enemy.enemyAsteroid.reduceHealth();
+                }
+            });
+        });
+    }
+} 
+
+export default Enemy;
+
+                

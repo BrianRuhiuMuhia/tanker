@@ -1,38 +1,41 @@
-import DrawImage from "./DrawImage.js"
-class Explosion{
-constructor(sprites,delta){
-this.sprites=this.getArrayFromObj(sprites)
-this.index=-1
-this.currentSprite=null
-this.currentSpriteImage=null
-this.size={width:50,height:50}
-this.maxLen=this.sprites.length-1
-this.count=0
-this.maxTime=10
-}
-draw(ctx,position){
-    if(this.index>=this.maxLen){
-        this.index=0
-    }
-    if(this.count>this.maxTime){
-       this.index++
-this.currentSprite=this.sprites[this.index]
-consle.log(this.currentSprite)
-this.currentSpriteImage=new DrawImage(this.currentSprite,position,{x:0,y:0},0,this.size)
-this.currentSpriteImage.draw(ctx) 
-this.count=0
-    }
-    else{
-        this.count++
-    }
-
-}
-getArrayFromObj(obj){
-let arr=[]
-for(let key in obj){
-    arr.push(obj[key])
-}
-return arr
-}
+class Explosion {
+  constructor(x, y) {
+    this.image = cloud_sprite;
+    this.spriteWidth = 92;
+    this.spriteHeight = 181;
+    this.width = 100;
+    this.height = 100;
+    this.x = x;
+    this.y = y;
+    this.delete = false;
+    this.maxFrames = 5;
+    this.frames = 0;
+    this.max = 100;
+    this.interval = 0;
+    this.delete = false;
+  }
+  draw() {
+    ctx.drawImage(
+      this.image,
+      this.frames * this.spriteWidth,
+      0,
+      this.spriteWidth,
+      this.spriteHeight,
+      this.x,
+      this.y,
+      this.spriteWidth,
+      this.spriteHeight,
+    );
+  }
+  update() {
+    if (this.interval > deltaTime) {
+      if (this.frames < this.maxFrames) {
+        this.frames++;
+      } else {
+        this.delete = true;
+      }
+      this.interval = 0;
+    } else this.interval += 2;
+  }
 }
 export default Explosion

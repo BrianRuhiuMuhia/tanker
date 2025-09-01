@@ -1,11 +1,25 @@
+
+
 const sprites={
-    "bg1":document.getElementById("bg1"),
-    "p1":document.getElementById("ship1"),
-    "p2":document.getElementById("ship2"),
+    "background":{
+       "bg1":document.getElementById("bg1"),
+       "bg2":document.getElementById("bg5") 
+    },
+    "player":{
+       "p1":document.getElementById("ship1"),
+    "p2":document.getElementById("ship2"), 
+    },"asteroid":{
     "astr1":document.getElementById("astr1"),
     "astr2":document.getElementById("astr2"),
-    "astr3":document.getElementById("astr3"),
+    },"alien":{
+        "alien1":document.getElementById("alien")
+    }
+,projectile:{
     "red":document.getElementById("red"),
+    "green":document.getElementById("green"),
+    "blue":document.getElementById("blue")
+}
+    ,
     "explosion":{
         "exp1":document.getElementById("exp1"),
         "exp2":document.getElementById("exp2"),
