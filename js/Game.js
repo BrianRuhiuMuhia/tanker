@@ -1,6 +1,4 @@
-import Sprite from "./Sprite.js";
-import sprites from "./sprites.js";
-import DrawImage from "./DrawImage.js";
+
 import Player from "./Player.js"
 import Events from "./Events.js";
 import Levels from "./Levels.js";

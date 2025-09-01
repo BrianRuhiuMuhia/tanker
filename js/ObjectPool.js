@@ -52,7 +52,7 @@ createAsteroids(){
     return this.pool
 }
 createAliens(){
-    let alienSize={width:100,height:100}
+    let alienSize={width:40,height:20}
     for (let i = 0; i < this.maxPoolSize; i++) {
         let alienPosition = {
             x: Math.random() * this.gameSize.width, // Random x position

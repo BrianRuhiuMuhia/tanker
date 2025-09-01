@@ -2,7 +2,6 @@ import Sprite from "./Sprite.js"
 import sprites from "./sprites.js"
 import ObjectPool from "./ObjectPool.js"
 import DrawImage from "./DrawImage.js"
-import Enemy from "./Asteroid.js"
 import { getRandomDimensions } from "./utility.js"
 class EnemyClass{
     constructor(gameSize,poolSize){

@@ -1,4 +1,3 @@
-import Sprite from "./Sprite.js"
 import DrawImage from "./DrawImage.js"
 import StatusBar from "./StatusBar.js"
 import ObjectPool from "./ObjectPool.js"
